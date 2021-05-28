@@ -114,6 +114,7 @@ app.route("/edit")
             }
             res.render("edit.pug", {
                 jstring: jstring,
+                folders: getBackgroundFolderList(),
                 backgrounds: getBackgroundList(),
                 jdata: JSON.parse(jstring),
                 overlays: getOverlayList(),
@@ -131,6 +132,7 @@ app.route("/edit")
         }
     })
     .post(checkAuth, async function (req, res) {
+        editUser(req.user.id, "series", req.body.series);
         editUser(req.user.id, "bg", req.body.background);
         editUser(req.user.id, "overlay", req.body.overlay);
         editUser(req.user.id, "region", req.body.flag);
@@ -481,8 +483,18 @@ function checkAuth(req, res, next) {
     res.redirect("/login");
 }
 
-function getBackgroundList() {
+function getBackgroundFolderList() {
+    console.log(fs.readdirSync(path.resolve(dataFolder, "img", "1200x450")));
     return fs.readdirSync(path.resolve(dataFolder, "img", "1200x450"));
+}
+
+function getBackgroundList() {
+    var backgrounds = []
+    for (i of getBackgroundFolderList()) {
+        backgrounds.push = fs.readdirSync(path.resolve(dataFolder, "img", "1200x450", i));
+    }
+    console.log(backgrounds);
+    return backgrounds;
 }
 
 function getOverlayList() {

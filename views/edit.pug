@@ -42,16 +42,26 @@ block content
                                         .container
                                             .row.justify-content-center
                                                 .col-12
-                                                   select(name="background" id="background").big-space-bottom
-                                                        each bg in backgrounds
-                                                            if jdata.bg == `img/1200x450/${bg}`
-                                                                option(value=`img/1200x450/${bg}` selected=true)= bg
+                                                    h6.mb-0 Select a background series.
+                                                    select(name="Series" id="series").big-space-bottom
+                                                        each series in folders
+                                                            if jdata.series == `img/1200x450/${series}`
+                                                                option(value=`img/1200x450/${series}` selected=true)= series
                                                             else
-                                                                option(value=`img/1200x450/${bg}` selected=false)= bg
+                                                                option(value=`img/1200x450/${series}` selected=false)= series
+                                            .row.justify-content-center
+                                                .col-12
+                                                    h6.mb-0 Select a background.
+                                                    select(name="Backgrounds" id="backgrounds").big-space-bottom
+                                                        each bg in backgrounds
+                                                            if jdata.bg == `${bg}`
+                                                                option(value=`${bg}` selected=true)= bg
+                                                            else
+                                                                option(value=`${bg}` selected=false)= bg
                                             .row.justify-content-center
                                                 .col-12
                                                     div.text-center.space-top
-                                                        img(src=jdata.bg width="75%" id="background-img" alt="Background Preview").editor
+                                                        img(src=(jdata.series + "/" + jdata.bg) width="75%" id="background-img" alt="Background Preview").editor
                     .col-md-6
                         .card.big-space-bottom
                             .card-header

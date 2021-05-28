@@ -25,8 +25,11 @@ block content
                                 strong Display Name: 
                                 | #{tuser.name}
                                 br
+                                strong Series: 
+                                | #{tuser.series.replace("img/1200x450/", "")}
+                                br
                                 strong Background: 
-                                | #{tuser.bg.replace("img/1200x450/", "")}
+                                | #{tuser.bg}
                                 br
                                 strong Region: 
                                 | #{flags[tuser.region]}

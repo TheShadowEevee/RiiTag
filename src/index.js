@@ -411,7 +411,8 @@ class Tag extends events.EventEmitter{
         this.ctx = this.canvas.getContext("2d");
 
         // background
-        await this.drawImage(path.resolve(dataFolder, this.user.bg));
+        console.log(this.user.series + "/" + this.user.bg);
+        await this.drawImage(path.resolve(dataFolder, this.user.series + "/" + this.user.bg));
 
         // overlay image
         await this.drawImage(path.resolve(dataFolder, this.overlay.overlay_img));
