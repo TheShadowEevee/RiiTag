@@ -287,6 +287,9 @@ app.get("^/:id([0-9]+)/riitag.wad", async function(req, res) {
             res.set('Content-Type', 'application/octet-stream');
             s.pipe(res);
         });
+    } else {
+        res.status(404).render("notfound.pug");
+        return;
     }
 })
 
