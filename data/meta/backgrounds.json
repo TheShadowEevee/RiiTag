@@ -1,0 +1,58 @@
+{
+
+    "TODO": ["Sort these (Catagories and Items)", "Code should implement categories as 'NAME (# of items)'", "Users should be updated to have the category, then the Background-Name.", "Change all NAMEs to the accurate game name"],
+
+    "example-backgrounds": {
+        "Background-Name": ["Background Display Name", "Path"]
+    },
+
+    "RiiConnect24": {
+        "RiiConnect24-Logo-A": ["RC24 Logo Type A", "img/1200x450/riiconnect241.png"],
+        "RiiConnect24-Logo-B": ["RC24 Logo Type B", "img/1200x450/riiconnect242.png"],
+        "RiiConnect24-Background": ["RC24 Background Light", "img/1200x450/riiconnect242.png"],
+        "RiiConnect24-Background-Dark": ["RC24 Background Dark", "img/1200x450/riiconnect242.png"],
+        "RiiConnect24-EVC": ["Everybody Votes Channel", "img/1200x450/riiconnect245.png"],
+        "RiiConnect24-MiiPlaza-A": ["Mii Plaza Type A", "img/1200x450/riiconnect247.png"],
+        "RiiConnect24-MiiPlaza-B": ["Mii Plaza Type B", "img/1200x450/riiconnect248.png"],
+        "RiiConnect24-MiiPlaza-C": ["Mii Plaza Type C", "img/1200x450/riiconnect249.png"]
+    },
+
+    "Animal Crossing": {
+        "AC-ITC-Village": ["Into The City - Village", "img/1200x450/animalcrossing1.png"],
+        "AC-ITC-City": ["Into The City - City", "img/1200x450/animalcrossing2.png"],
+        "AC-ITC-Village-Winter": ["Into The City - Village (Winter)", "img/1200x450/animalcrossing3.png"],
+        "AC-ITC-Postcard": ["Into The City - Postcard", "img/1200x450/animalcrossing4.png"],
+        "AC-ITC-Village-Spring": ["Into The City - Village (Spring)", "img/1200x450/animalcrossing5.png"],
+        "AC-ITC-Village-Night": ["Into The City - Village (Night)", "img/1200x450/animalcrossing6.png"],
+        "AC-ITC-Village-Autumn": ["Into The City - Village (Autumn)", "img/1200x450/animalcrossing7.png"],
+        "AC-Unknown-Village": ["GAME - Village", "img/1200x450/animalcrossing8.png"],
+        "AC-KKSlider-Albums": ["KK Slider Album Covers", "img/1200x450/animalcrossing9.png"],
+        "AC-Camera-Roll": ["Seasonal Pictures", "img/1200x450/animalcrossing10.png"],
+        "AC-NH-Postcard": ["New Horizons - Postcard", "img/1200x450/animalcrossing11.png"],
+        "AC-Silhouette-Cutouts": ["Silhouette Cutouts", "img/1200x450/animalcrossing12.png"],
+        "AC-KK-Slider": ["KK Slider", "img/1200x450/animalcrossing13.png"]
+    },
+
+    "Arms": {
+        "Arms-Arena-Battle": ["Arms Match", "img/1200x450/arms1.png"]
+    },
+
+    "Arthur": {
+        "Arthur-Living-Room": ["Living Room", "img/1200x450/arthur1.png"],
+        "Arthur-Library": ["Elwood Library", "img/1200x450/arthur2.png"],
+        "Arthur-Classroom": ["Classroom", "img/1200x450/arthur3.png"],
+        "Arthur-Sugar-Bowl": ["The Sugar Bowl", "img/1200x450/arthur4.png"]
+    },
+
+    "Zelda": {
+        "Zelda-GAME-Art": ["GAME CG", "img/1200x450/zelda1.png"],
+        "Zelda-BOTW-Art": ["Breath of the Wild CG", "img/1200x450/zelda2.png"],
+        "Zelda-BOTW-Promo": ["Breath of the Wild Promo", "img/1200x450/zelda3.png"],
+        "Zelda-SS-Promo": ["Skyward Sword Promo", "img/1200x450/zelda4.png"],
+        "Zelda-GAME2-Art": ["GAME CG", "img/1200x450/zelda5.png"],
+        "Zelda-OOT-Art": ["Ocarina of Time CG", "img/1200x450/zelda6.png"],
+        "Zelda-GAME3-Art": ["GAME CG", "img/1200x450/zelda7.png"],
+        "Zelda-GAME4-Art": ["GAME CG", "img/1200x450/zelda8.png"],
+        "Zelda-WW-Art": ["Windwaker CG", "img/1200x450/zelda9.png"]
+    }
+}
