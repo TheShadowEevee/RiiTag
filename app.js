@@ -15,16 +15,17 @@ const renderGen2Mii = require("./src/renderGen2Mii");
 const Axios = require("axios");
 const Canvas = require("canvas");
 const Image = Canvas.Image;
+const Sentry = require('@sentry/node');
+const express = require("express");
+const app = express();
 
 const db = new DatabaseDriver(path.join(__dirname, "users.db"));
 const gameDb = new DatabaseDriver(path.join(__dirname, "games.db"));
 const coinDb = new DatabaseDriver(path.join(__dirname, "coins.db"));
+
 var wiiTDB = {};
 var wiiuTDB = {};
 var tdsTDB = {};
-const Sentry = require('@sentry/node');
-const express = require("express");
-const app = express();
 
 const guests = { "a": "Guest A", "b": "Guest B", "c": "Guest C", "d": "Guest D", "e": "Guest E", "f": "Guest F" };
 const guestList = Object.keys(guests);
