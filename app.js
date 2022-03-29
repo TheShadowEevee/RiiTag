@@ -61,7 +61,9 @@ passport.use(new DiscordStrategy({
 }));
 
 app.use(session({
-    secret: generateRandomKey(512)
+    secret: generateRandomKey(512),
+    resave: true,
+    saveUninitialized: false
 }));
 app.use(passport.initialize());
 app.use(passport.session());
