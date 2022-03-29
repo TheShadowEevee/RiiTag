@@ -1,5 +1,5 @@
 const renderMiiFromHex = require("./rendermiifromhex");
-const request = require('request');
+const Axios = require('axios');
 const fs = require("fs");
 const path = require("path");
 const dataFolder = path.resolve(__dirname, "../data");
@@ -25,9 +25,10 @@ module.exports = async function (entrynumber, id, dataFolder) {
         }
     }
 
+    var body = "------WebKitFormBoundary2bpPmOcP6IdUsMAq\r\nContent-Disposition: form-data; name=\"platform\"\r\n\r\nwii\r\n------WebKitFormBoundary2bpPmOcP6IdUsMAq\r\nContent-Disposition: form-data; name=\"id\"\r\n\r\n" + entrynumber + "\r\n------WebKitFormBoundary2bpPmOcP6IdUsMAq--\r\n"
+
     // Setup Request Data
     var requestSettings = {
-        url: "https://miicontestp.wii.rc24.xyz/cgi-bin/studio.cgi",
         headers: {
             "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundary2bpPmOcP6IdUsMAq",
             "Accept": "*/*"
@@ -38,10 +39,18 @@ module.exports = async function (entrynumber, id, dataFolder) {
     };
 
     // Get Mii Data from Mii ID Number -> miihex
-    request.post(requestSettings, async function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-            stringBody = body.toString();
-            retData = stringBody.replace(/ /g, "").replace(/{/g, "").replace(/}/g, "").replace(/:/g, "").replace(/m/g, "").replace(/i/g, "").replace(/\"/g, "")
+    Axios.post(
+        "https://miicontestp.wii.rc24.xyz/cgi-bin/studio.cgi", 
+        body,
+        {
+            headers: {
+                "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundary2bpPmOcP6IdUsMAq",
+                "Accept": "*/*"
+            }
+        }
+    ).then(async response => {
+        if (response.status == 200) {
+            retData = response.data.mii
             editUser(id, "mii_data", retData);
             
             // Save Mii Icon, see ./rendermiifronhex.js
@@ -60,7 +69,7 @@ module.exports = async function (entrynumber, id, dataFolder) {
         } else {
             throw "Non HTTP 200 Status code returned from CMOC Mii Host!";
         }
-    });
+    })
 }
 
 function editUser(id, key, value) {
