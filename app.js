@@ -32,12 +32,6 @@ guestList.push("undefined");
 
 const port = config.port || 3000;
 
-// Sentry has no need to track CMOC host errors, that implementation is purely there for error handling to stop the function.
-Sentry.init({ dsn: config.sentryURL, ignoreErrors: ["Non HTTP 200 Status code returned from CMOC Mii Host!"] });
-
-app.use(Sentry.Handlers.requestHandler());
-app.use(Sentry.Handlers.errorHandler());
-
 var dd_options = {
     'response_code': true,
     'tags': ['app:riitag']
@@ -309,6 +303,12 @@ app.get("/wii", async function (req, res) {
         return
     }
 
+    Sentry.setUser({ id: userID });
+
+    Sentry.setContext("Input Parameters", {
+        "Game": gameID
+    });
+
     if (getUserAttrib(userID, "lastplayed") !== null) {
         if (Math.floor(Date.now() / 1000) - getUserAttrib(userID, "lastplayed")[1] < 60) {
             res.status(429).send(); // Cooldown
@@ -325,6 +325,8 @@ app.get("/wii", async function (req, res) {
 
     await gamePlayed(gameID, 0, userID);
     res.status(200).send();
+
+    Sentry.configureScope(scope => scope.clear());
 
     var banner = await getTagEP(userID).catch(function () {
         res.status(404).render("notfound.pug");
@@ -350,6 +352,17 @@ app.get("/wiiu", async function (req, res) {
         return
     }
 
+    if (origin == "") {origin = "Not Listed"}
+    var userRegion = JSON.parse(fs.readFileSync(path.resolve(dataFolder, "users", userID + ".json")).toString()).coverregion;
+
+    Sentry.setUser({ id: userID });
+
+    Sentry.setContext("Input Parameters", {
+        "Game": gameTID,
+        "User Region": userRegion,
+        "Origin": origin
+    });
+
     if (getUserAttrib(userID, "lastplayed") !== null) {
         if (Math.floor(Date.now() / 1000) - getUserAttrib(userID, "lastplayed")[1] < 60) {
             res.status(429).send(); // Cooldown
@@ -358,7 +371,6 @@ app.get("/wiiu", async function (req, res) {
     }
 
     if (origin == "Cemu") {
-        var userRegion = JSON.parse(fs.readFileSync(path.resolve(dataFolder, "users", userID + ".json")).toString()).coverregion;
         gameTID = getCemuGameRegion(gameTID, userRegion); // Returns a game Title ID
         if (gameTID == 1) {
             res.status(400).send();
@@ -382,9 +394,11 @@ app.get("/wiiu", async function (req, res) {
     setUserAttrib(userID, "coins", c + 1);
     setUserAttrib(userID, "games", newGames);
     setUserAttrib(userID, "lastplayed", [console + ids[gameTID], Math.floor(Date.now() / 1000)]);
-    
+
     await gamePlayed(ids[gameTID], 1, userID);
     res.status(200).send();
+
+    Sentry.configureScope(scope => scope.clear());
 
     var banner = await getTagEP(userID).catch(function () {
         res.status(404).render("notfound.pug");
@@ -407,14 +421,21 @@ app.get("/3ds", async function (req, res) {
         return
     }
 
+    var userRegion = JSON.parse(fs.readFileSync(path.resolve(dataFolder, "users", userID + ".json")).toString()).coverregion;
+
+    Sentry.setUser({ id: userID });
+
+    Sentry.setContext("Input Parameters", {
+        "Game": gameName,
+        "User Region": userRegion
+    });
+
     if (getUserAttrib(userID, "lastplayed") !== null) {
         if (Math.floor(Date.now() / 1000) - getUserAttrib(userID, "lastplayed")[1] < 60) {
             res.status(429).send(); // Cooldown
             return
         }
     }
-
-    var userRegion = JSON.parse(fs.readFileSync(path.resolve(dataFolder, "users", userID + ".json")).toString()).coverregion;
 
     gameID = getCitraGameRegion(gameName, userRegion); // Returns an ID4
 
@@ -424,9 +445,11 @@ app.get("/3ds", async function (req, res) {
     setUserAttrib(userID, "coins", c + 1);
     setUserAttrib(userID, "games", newGames);
     setUserAttrib(userID, "lastplayed", ["3ds-" + gameID, Math.floor(Date.now() / 1000)]);
-    
+
     await gamePlayed(gameID, 2, userID);
     res.status(200).send();
+
+    Sentry.configureScope(scope => scope.clear());
 
     var banner = await getTagEP(userID).catch(function () {
         res.status(404).render("notfound.pug");
@@ -1051,76 +1074,58 @@ function getCitraGameRegion(gameName, coverRegion) {
             If not just return "ids[gameName][0]" to use the first entry for the game.
         */
 
-        try {
-            for (IDs of ids[gameName]) {
-                var gameRegion = IDs.slice(-1);
-                var userRegion = coverRegion;
+        for (IDs of ids[gameName]) {
+            var gameRegion = IDs.slice(-1);
+            var userRegion = coverRegion;
 
-                if (userRegion == "FR" && gameRegion == "F") return IDs;
-                if (userRegion == "DE" && gameRegion == "D") return IDs;
-                if (userRegion == "ES" && gameRegion == "S") return IDs;
-                if (userRegion == "IT" && gameRegion == "I") return IDs;
-                if (userRegion == "NL" && gameRegion == "H") return IDs;
-                if (userRegion == "KO" && gameRegion == "K") return IDs;
-                if (userRegion == "TW" && gameRegion == "W") return IDs;
+            if (userRegion == "FR" && gameRegion == "F") return IDs;
+            if (userRegion == "DE" && gameRegion == "D") return IDs;
+            if (userRegion == "ES" && gameRegion == "S") return IDs;
+            if (userRegion == "IT" && gameRegion == "I") return IDs;
+            if (userRegion == "NL" && gameRegion == "H") return IDs;
+            if (userRegion == "KO" && gameRegion == "K") return IDs;
+            if (userRegion == "TW" && gameRegion == "W") return IDs;
 
-                if (userRegion == "JP" && gameRegion == "J") return IDs;
-                if (userRegion == "JP") userRegion = "EN"; // Fallback
+            if (userRegion == "JP" && gameRegion == "J") return IDs;
+            if (userRegion == "JP") userRegion = "EN"; // Fallback
 
-                if (userRegion == "EN" && gameRegion == "E") return IDs;
-                if (userRegion == "EN" && (gameRegion == "X" || gameRegion == "Y" || gameRegion == "Z")) return IDs;
+            if (userRegion == "EN" && gameRegion == "E") return IDs;
+            if (userRegion == "EN" && (gameRegion == "X" || gameRegion == "Y" || gameRegion == "Z")) return IDs;
 
-                if (gameRegion == "P") return IDs;
-                if (gameRegion == "V") return IDs;
-                if (gameRegion == "X" || gameRegion == "Y" || gameRegion == "Z") return IDs;
-                if (gameRegion == "E") return IDs;
-                if (gameRegion == "J") return IDs;
-            }
-            // In case nothing was found, return the first ID.
-            return ids[gameName][0];
-
-        } catch (e) {
-            if (e instanceof TypeError) {
-                return ids[gameName][0];
-            } else {
-                throw(e)
-            }
+            if (gameRegion == "P") return IDs;
+            if (gameRegion == "V") return IDs;
+            if (gameRegion == "X" || gameRegion == "Y" || gameRegion == "Z") return IDs;
+            if (gameRegion == "E") return IDs;
+            if (gameRegion == "J") return IDs;
         }
+        // In case nothing was found, return the first ID.
+        return ids[gameName][0];
     }
 }
 
 function getCemuGameRegion(gameName, coverRegion) {
     var ids = JSON.parse(fs.readFileSync(path.resolve(dataFolder, "ids", "cemu.json"))) // 16 digit TID -> 4 or 6 digit game ID
 
-    try {
-        for (Regions of ids[gameName]) {
-            var userRegion = coverRegion;
+    for (Regions of ids[gameName]) {
+        var userRegion = coverRegion;
 
-            if (userRegion == "FR" && Regions["EUR"]) return Regions["EUR"];
-            if (userRegion == "DE" && Regions["EUR"]) return Regions["EUR"];
-            if (userRegion == "ES" && Regions["EUR"]) return Regions["EUR"];
-            if (userRegion == "IT" && Regions["EUR"]) return Regions["EUR"];
-            if (userRegion == "NL" && Regions["EUR"]) return Regions["EUR"];
-            if (userRegion == "KO" && Regions["EUR"]) return Regions["EUR"];
-            if (userRegion == "TW" && Regions["EUR"]) return Regions["EUR"];
+        if (userRegion == "FR" && Regions["EUR"]) return Regions["EUR"];
+        if (userRegion == "DE" && Regions["EUR"]) return Regions["EUR"];
+        if (userRegion == "ES" && Regions["EUR"]) return Regions["EUR"];
+        if (userRegion == "IT" && Regions["EUR"]) return Regions["EUR"];
+        if (userRegion == "NL" && Regions["EUR"]) return Regions["EUR"];
+        if (userRegion == "KO" && Regions["EUR"]) return Regions["EUR"];
+        if (userRegion == "TW" && Regions["EUR"]) return Regions["EUR"];
 
-            if (userRegion == "JP" && Regions["JPN"]) return Regions["JPN"];
-            if (userRegion == "JP") userRegion = "EN"; // Fallback
+        if (userRegion == "JP" && Regions["JPN"]) return Regions["JPN"];
+        if (userRegion == "JP") userRegion = "EN"; // Fallback
 
-            if (userRegion == "EN" && Regions["USA"]) return Regions["USA"];
-        }
-
-        // In case nothing was found, return the first ID.
-        // This will happen if the cover type doesn't have a corresponding region.
-        return ids[gameName][0];
-
-    } catch (e) {
-        if (e instanceof TypeError) {
-            return ids[gameName][0];
-        } else {
-            throw(e)
-        }
+        if (userRegion == "EN" && Regions["USA"]) return Regions["USA"];
     }
+
+    // In case nothing was found, return the first ID.
+    // This will happen if the cover type doesn't have a corresponding region.
+    return ids[gameName][0];
 }
 
 app.use(function (req, res, next) {
@@ -1138,6 +1143,12 @@ app.use(function (req, res, next) {
     res.status(404);
     res.render("notfound.pug");
 });
+
+// Sentry has no need to track CMOC host errors, that implementation is purely there for error handling to stop the function.
+Sentry.init({ dsn: config.sentryURL, ignoreErrors: ["Non HTTP 200 Status code returned from CMOC Mii Host!"] });
+
+app.use(Sentry.Handlers.requestHandler());
+app.use(Sentry.Handlers.errorHandler());
 
 module.exports = {
     dataFolder: dataFolder
