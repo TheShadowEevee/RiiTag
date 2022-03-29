@@ -1174,7 +1174,7 @@ app.use(function (req, res, next) {
 });
 
 // Sentry has no need to track CMOC host errors, that implementation is purely there for error handling to stop the function.
-Sentry.init({ dsn: config.sentryURL, ignoreErrors: ["Non HTTP 200 Status code returned from CMOC Mii Host!"] });
+Sentry.init({ dsn: config.sentryURL, ignoreErrors: ["Non HTTP 200 Status code returned from CMOC Mii Host!", "Cannot set headers after they are sent to the client"] });
 
 app.use(Sentry.Handlers.requestHandler());
 app.use(Sentry.Handlers.errorHandler());
