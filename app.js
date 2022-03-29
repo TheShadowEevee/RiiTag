@@ -1,34 +1,38 @@
-const Banner = require("./src/index");
-const fs = require("fs");
-const path = require("path");
-const dataFolder = path.resolve(__dirname, "data");
-const DiscordStrategy = require("passport-discord").Strategy;
-const passport = require("passport");
-const config = loadConfig();
+// NPM Module Imports
 const session = require("express-session");
 const bodyParser = require("body-parser");
 const xml = require("xml");
+const fs = require("fs");
+const path = require("path");
+const Axios = require("axios");
+const Canvas = require("canvas");
+const Sentry = require('@sentry/node');
+const express = require("express");
+const passport = require("passport");
+const DiscordStrategy = require("passport-discord").Strategy;
+
+// Script Imports
+const Banner = require("./src/index");
 const DatabaseDriver = require("./dbdriver");
 const renderMiiFromHex = require("./src/rendermiifromhex");
 const renderMiiFromEntryNo = require("./src/rendermiifromentryno");
 const renderGen2Mii = require("./src/renderGen2Mii");
-const Axios = require("axios");
-const Canvas = require("canvas");
-const Image = Canvas.Image;
+const dataFolder = path.resolve(__dirname, "data");
 
+// File Imports
+const config = loadConfig();
+
+// Variable Setup
 const db = new DatabaseDriver(path.join(__dirname, "users.db"));
 const gameDb = new DatabaseDriver(path.join(__dirname, "games.db"));
 const coinDb = new DatabaseDriver(path.join(__dirname, "coins.db"));
+const app = express();
+const Image = Canvas.Image;
 var wiiTDB = {};
 var wiiuTDB = {};
 var tdsTDB = {};
-const Sentry = require('@sentry/node');
-const express = require("express");
-const app = express();
-
 const guests = { "a": "Guest A", "b": "Guest B", "c": "Guest C", "d": "Guest D", "e": "Guest E", "f": "Guest F" };
-const guestList = Object.keys(guests);
-guestList.push("undefined");
+const guestList = Object.keys(guests).push("undefined");
 
 const port = config.port || 3000;
 
@@ -91,7 +95,7 @@ app.get('/logout', function (req, res) {
 });
 
 app.get('/callback',
-    passport.authenticate('discord', { failureRedirect: '/' }), function(req, res) {
+    passport.authenticate('discord', { failureRedirect: '/' }), function (req, res) {
         res.cookie("uid", req.user.id);
         if (config.admins.includes(req.user.id)) {
             req.user.admin = true;
@@ -174,11 +178,11 @@ app.route("/edit")
         }, 2000);
     });
 
-app.get("/admin", checkAdmin, function(req, res) {
+app.get("/admin", checkAdmin, function (req, res) {
     res.render("admin.pug", { user: req.user });
 });
 
-app.get("^/admin/refresh/:id([0-9]+)", checkAdmin, async function(req, res) {
+app.get("^/admin/refresh/:id([0-9]+)", checkAdmin, async function (req, res) {
     if (!req.params.id) {
         res.redirect(`/${req.user.id}`);
     }
@@ -196,7 +200,7 @@ app.get("^/admin/refresh/:id([0-9]+)", checkAdmin, async function(req, res) {
 });
 
 app.route("/admin/user")
-    .get(checkAdmin, async function(req, res) {
+    .get(checkAdmin, async function (req, res) {
         if (fs.existsSync(path.resolve(dataFolder, "users", req.query.userid + ".json"))) {
             var jstring = fs.readFileSync(path.resolve(dataFolder, "users", req.query.userid + ".json")).toString();
             var userKey = await getUserKey(req.query.userid);
@@ -220,7 +224,7 @@ app.route("/admin/user")
         } else {
             res.status(404).render("notfound.pug");
         }
-});
+    });
 
 app.get("/create", checkAuth, async function (req, res) {
     if (!fs.existsSync(path.resolve(dataFolder, "tag"))) {
@@ -276,12 +280,12 @@ app.get("^/:id([0-9]+)/tag.max.png", async function (req, res) {
             res.set('Content-Type', 'image/png');
             s.pipe(res);
         });
-     } catch (e) {
-         res.status(404).render("notfound.pug");
-     }
+    } catch (e) {
+        res.status(404).render("notfound.pug");
+    }
 });
 
-app.get("^/:id([0-9]+)/riitag.wad", checkAuth, async function(req, res) {
+app.get("^/:id([0-9]+)/riitag.wad", checkAuth, async function (req, res) {
 
     if (!fs.existsSync(path.resolve(dataFolder, "wads"))) {
         return;
@@ -321,7 +325,7 @@ app.get("/wii", async function (req, res) {
     var key = req.query.key || "";
     var gameID = req.query.game || "";
 
-    if ( (key == "" || typeof key == 'undefined' || !key) || (gameID == "" || typeof gameID == 'undefined' || !gameID) ) {
+    if ((key == "" || typeof key == 'undefined' || !key) || (gameID == "" || typeof gameID == 'undefined' || !gameID)) {
         res.status(400).send();
         return
     }
@@ -370,7 +374,7 @@ app.get("/wiiu", async function (req, res) {
 
     gameTID = gameTID.replace(/%26/g, "&").replace(/ - /g, "\n").toString()
 
-    if ( (key == "" || typeof key == 'undefined' || !key) || (gameTID == "" || typeof gameTID == 'undefined' || !gameTID) ) {
+    if ((key == "" || typeof key == 'undefined' || !key) || (gameTID == "" || typeof gameTID == 'undefined' || !gameTID)) {
         res.status(400).send();
         return
     }
@@ -381,7 +385,7 @@ app.get("/wiiu", async function (req, res) {
         return
     }
 
-    if (origin == "") {origin = "Not Listed"}
+    if (origin == "") { origin = "Not Listed" }
     var userRegion = JSON.parse(fs.readFileSync(path.resolve(dataFolder, "users", userID + ".json")).toString()).coverregion;
 
     Sentry.setUser({ id: userID });
@@ -411,7 +415,7 @@ app.get("/wiiu", async function (req, res) {
 
     var ids = JSON.parse(fs.readFileSync(path.resolve(dataFolder, "ids", "wiiu.json"))) // 16 digit TID -> 4 or 6 digit game ID
     var console = "wiiu-"
-    
+
     if (!ids[gameTID]) {
         var ids = JSON.parse(fs.readFileSync(path.resolve(dataFolder, "ids", "wiiVC.json"))) // 16 digit TID -> 4 or 6 digit game ID WiiVC Inject
         console = "wii-"
@@ -439,7 +443,7 @@ app.get("/3ds", async function (req, res) {
     var key = req.query.key || "";
     var gameName = req.query.game || "";
 
-    if ( (key == "" || typeof key == 'undefined' || !key) || (gameName == "" || typeof gameName == 'undefined' || !gameName) ) {
+    if ((key == "" || typeof key == 'undefined' || !key) || (gameName == "" || typeof gameName == 'undefined' || !gameName)) {
         res.status(400).send();
         return
     }
@@ -505,7 +509,7 @@ app.get("/Wiinnertag.xml", checkAuth, async function (req, res) {
 
 app.get("^/:id([0-9]+)", function (req, res, next) {
     var userData = getUserData(req.params.id);
-    
+
     if (!userData) {
         res.status(404).render("notfound.pug");
         return;
@@ -713,7 +717,7 @@ function getUserData(id) {
     } catch (e) {
         return null;
     }
-    
+
     return jdata;
 }
 
@@ -722,10 +726,10 @@ async function gamePlayed(id, console, user) {
     if (!exists) {
         await gameDb.insert("games", ["console", "gameID", "count"], [console, id, 0]);
     }
-    await gameDb.increment("games", "gameID", id, "count").catch(function(err) {
+    await gameDb.increment("games", "gameID", id, "count").catch(function (err) {
         process.stdout.write(err + "\n");
     });
-    await coinDb.increment("coins", "snowflake", user, "count").catch(function(err) {
+    await coinDb.increment("coins", "snowflake", user, "count").catch(function (err) {
         process.stdout.write(err + "\n");
     });
 }
@@ -737,20 +741,20 @@ async function cacheWiiTDB() {
         url,
         method: "GET",
         responseType: "text",
-    }).catch(function(err) {
+    }).catch(function (err) {
         console.log(err);
         ret = true;
     });
     if (ret) {
         return;
     }
-    response.data.split("\r\n").forEach(function(line) {
+    response.data.split("\r\n").forEach(function (line) {
         try {
             var split = line.split(" = ");
             var key = split[0];
             var val = split[1];
             wiiTDB[key] = val;
-        } catch(err) {
+        } catch (err) {
             console.log(`WiiTDB Cache: Failed on ${line}`);
             console.log(err);
         }
@@ -764,20 +768,20 @@ async function cacheWiiUTDB() {
         url,
         method: "GET",
         responseType: "text",
-    }).catch(function(err) {
+    }).catch(function (err) {
         console.log(err);
         ret = true;
     });
     if (ret) {
         return;
     }
-    response.data.split("\r\n").forEach(function(line) {
+    response.data.split("\r\n").forEach(function (line) {
         try {
             var split = line.split(" = ");
             var key = split[0];
             var val = split[1];
             wiiuTDB[key] = val;
-        } catch(err) {
+        } catch (err) {
             console.log(`WiiUTDB Cache: Failed on ${line}`);
             console.log(err);
         }
@@ -791,20 +795,20 @@ async function cache3dsTDB() {
         url,
         method: "GET",
         responseType: "text",
-    }).catch(function(err) {
+    }).catch(function (err) {
         console.log(err);
         ret = true;
     });
     if (ret) {
         return;
     }
-    response.data.split("\r\n").forEach(function(line) {
+    response.data.split("\r\n").forEach(function (line) {
         try {
             var split = line.split(" = ");
             var key = split[0];
             var val = split[1];
             tdsTDB[key] = val;
-        } catch(err) {
+        } catch (err) {
             console.log(`3dsTDB Cache: Failed on ${line}`);
             console.log(err);
         }
@@ -826,7 +830,7 @@ async function createUser(user) {
             sort: "",
             font: "default"
         };
-    
+
         fs.writeFileSync(path.resolve(dataFolder, "users", user.id + ".json"), JSON.stringify(ujson, null, 4));
     }
 
@@ -895,7 +899,7 @@ function getHomeTags() {
     // TODO **URGENT**: Calculate tags to show on front page
 }
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     var allowed = [
         "/img",
         "/overlays",
@@ -1024,13 +1028,13 @@ async function cacheGameCover(game, region, covertype, consoletype, extension) {
     }
     try {
         await downloadGameCover(game, region, covertype, consoletype, extension);
-    } catch(e) {
+    } catch (e) {
         try {
             await downloadGameCover(game, "EN", covertype, consoletype, extension); // Cover might not exist?
-        } catch(e) {
+        } catch (e) {
             try {
                 await downloadGameCover(game, "US", covertype, consoletype, extension); // Small chance it's US region
-            } catch(e) {
+            } catch (e) {
                 return false;
             }
         }
@@ -1049,9 +1053,9 @@ async function downloadGameCover(game, region, covertype, consoletype, extension
 }
 
 async function savePNG(out, c) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         var t;
-        c.createPNGStream().pipe(fs.createWriteStream(out)).on("close", function() {
+        c.createPNGStream().pipe(fs.createWriteStream(out)).on("close", function () {
             clearTimeout(t);
             resolve();
         });
@@ -1065,13 +1069,13 @@ async function savePNG(out, c) {
 
 async function getImage(source) {
     var img = new Image();
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         var t;
-        img.onload = function() {
+        img.onload = function () {
             clearTimeout(t);
             resolve(img);
         }
-        img.onerror = function(err) {
+        img.onerror = function (err) {
             clearTimeout(t);
             reject(err);
         }
@@ -1087,8 +1091,7 @@ async function getImage(source) {
 function getCitraGameRegion(gameName, coverRegion) {
     var ids = JSON.parse(fs.readFileSync(path.resolve(dataFolder, "ids", "3ds.json"))) // 16 digit TID -> 4 or 6 digit game ID
 
-    if ( typeof ids[gameName] !== 'undefined' && ids[gameName] )
-    {
+    if (typeof ids[gameName] !== 'undefined' && ids[gameName]) {
         if (!ids[gameName][1]) { // Prevent pointless searching for a proper region
             return ids[gameName][0];
         }
