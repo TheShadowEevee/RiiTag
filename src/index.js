@@ -54,7 +54,7 @@ class Tag extends events.EventEmitter{
         var obj = this;
         // console.log(source);
         getImage(source).then(function(img) {
-            console.log(img);
+            //console.log(img);
             obj.ctx.drawImage(img, x, y);
         }).catch(function(err) {
             console.error(err);
@@ -63,14 +63,14 @@ class Tag extends events.EventEmitter{
 
     async drawImageShrink(source, x=0, y=0, shrinkx=0, shrinky=0) {
         var obj = this;
-        console.log(source);
+        //console.log(source);
         obj.ctx.drawImage(source, x, y, shrinkx, shrinky);
     }
 
     async getAndDrawImageShrink(source, x=0, y=0, shrinkx=0, shrinky=0) {
         var obj = this;
         getImage(source).then(function(img) {
-            console.log(img);
+            //console.log(img);
             obj.ctx.drawImage(img, x, y, shrinkx, shrinky);
         }).catch(function(err) {
             console.error(err);

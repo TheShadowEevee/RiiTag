@@ -903,7 +903,7 @@ app.use(function(req, res, next) {
     ];
     for (var index of allowed) {
         if (req.path.indexOf(index)) {
-            console.log(req.path);
+            //console.log(req.path);
             next();
         }
     }
@@ -1079,7 +1079,7 @@ async function getImage(source) {
             console.log(source + " - getImage Timed Out");
             reject();
         }, 7500);
-        console.log(source);
+        //console.log(source);
         img.src = source;
     });
 }
@@ -1165,7 +1165,7 @@ app.use(function (req, res, next) {
     ];
     for (var index of allowed) {
         if (req.path.indexOf(index)) {
-            console.log(req.path);
+            //console.log(req.path);
             next();
         }
     }

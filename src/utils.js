@@ -33,7 +33,7 @@ async function getImage(source) {
             console.log(source + " - getImage Timed Out");
             reject();
         }, 7500);
-        console.log(source);
+        //console.log(source);
         img.src = source;
     });
 }

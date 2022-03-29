@@ -83,7 +83,7 @@ sel4.onchange = function () {
 sel6.onchange = function () {
     var cimg;
     var overlay = JSON.parse(getOverlay(`/overlays/${sel3.value}`));
-    console.log(this.value);
+    //console.log(this.value);
     if (this.value == "default") {
         cimg = overlay.username.font_family + ".png";
     } else {
@@ -258,7 +258,7 @@ document.getElementById('mii-file').onchange = function () {
     var file = document.getElementById('mii-file').files[0];
     hideMiiError();
     if (!file) {
-        console.log("No file");
+        //console.log("No file");
         showMiiError("No file has been selected.");
         return;
     }
@@ -266,7 +266,7 @@ document.getElementById('mii-file').onchange = function () {
     reader.onload = function () {
         var buffer = reader.result;
         if (buffer.byteLength != 74) {
-            console.log("Not a mii");
+            //console.log("Not a mii");
             showMiiError("The file selected is not a valid Mii.");
             return;
         }
@@ -282,7 +282,7 @@ document.getElementById('mii-file').onchange = function () {
         var miiImg = "";
         miiImg.src = `http://miicontestp.wii.rc24.xyz/cgi-bin/render.cgi?data=${hexString}`;
         showMiiSuccess();
-        console.log("Set data to " + hexString);
+        //console.log("Set data to " + hexString);
     }
     reader.readAsArrayBuffer(file);
 }
