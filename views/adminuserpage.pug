@@ -1,0 +1,223 @@
+extends head
+
+mixin miiUploadBox()
+    hr.big-space-top(style="border-top: 2px solid rgba(0, 0, 0, 0.1);")
+    h5.mb-0.big-space-top Upload a Mii Binary File
+    br
+    h6.mb-0 Uploads may take a second. Please do not save your edits until a confirmation message appears!
+    input#mii-file(type="file" readonly).space-top
+
+mixin miiQRUploadBox()
+    hr.big-space-top(style="border-top: 2px solid rgba(0, 0, 0, 0.1);")
+    h5.mb-0.big-space-top Upload a QR Code
+    h6.mb-0 Warning: Some QR Codes may not read properly.
+    h6.mb-0 If your Mii doesn't show up, try a different upload type!
+    h6.mb-0 Accepts PNGs and JPEG/JPG Files.
+    h6.mb-0 Tomodachi Life and Miitopia QR codes are supported too!
+    br
+    h6.mb-0 Uploads may take a second. Please do not save your edits until a confirmation message appears!
+    input#mii-QRfile(type="file" readonly).space-top
+
+mixin miiEntryNumberBox()
+    hr.big-space-top(style="border-top: 2px solid rgba(0, 0, 0, 0.1);")
+    h5.mb-0.big-space-top Check Mii Out Channel Entry Number
+    h6.mb-0 Enter a Check Mii Out Channel Entry Number here! It can be entered with or without the dashes.
+    input#mii-entrynumber(type="text" name="miinumber" value=jdata.mii_number readonly).space-top
+
+block content
+    - var soverlay
+    - var guests = {"a": "Guest A","b": "Guest B","c": "Guest C","d": "Guest D","e": "Guest E","f": "Guest F"}
+    - var guestList = Object.keys(guests);
+    div.big-space-top
+            .container
+                .row
+                    .col.text-center.space-top
+                        .card.big-space-bottom
+                            h2.mb-0 You are currently viewing the RiiTag of #{jdata.name}.
+                            h3.mb-0 User ID "#{tagowner}"
+                .row
+                    .col-md-6
+                        .card.big-space-bottom
+                            .card-header
+                                h5.mb-0 Background
+                            .card-body
+                                span.text-white
+                                    div.form-group
+                                        .container
+                                            .row.justify-content-center
+                                                .col-12
+                                                   select(name="background" id="background").big-space-bottom
+                                                        each bg in backgrounds
+                                                            if jdata.bg == `img/1200x450/${bg}`
+                                                                option(value=`img/1200x450/${bg}` selected=true disabled=false)= bg
+                                                            else
+                                                                option(value=`img/1200x450/${bg}` selected=false disabled=true)= bg
+                                            .row.justify-content-center
+                                                .col-12
+                                                    div.text-center.space-top
+                                                        img(src="../" + jdata.bg width="75%" id="background-img" alt="Background Preview").editor
+                    .col-md-6
+                        .card.big-space-bottom
+                            .card-header
+                                h5.mb-0 Overlay
+                            .card-body
+                                span.text-white
+                                    div.form-group
+                                        .container
+                                            .row.justify-content-center
+                                                .col-12
+                                                    select(name="overlay" id="overlay").big-space-bottom
+                                                        each overlay in overlays
+                                                            if overlay.enabled
+                                                                if jdata.overlay == `overlay${overlay.id}.json`
+                                                                    option(value=`overlay${overlay.id}.json` selected=true disabled=false)= overlay.name
+                                                                    - soverlay = overlay
+                                                                else
+                                                                    option(value=`overlay${overlay.id}.json` selected=false disabled=true)= overlay.name
+                                            .row.justify-content-center
+                                                .col-12
+                                                    div.text-center.space-top
+                                                        img(src=`/img/overlays/${jdata.overlay.replace(".json", "")}.png` width="75%" id="overlay-img" alt="Overlay Preview").editor
+                .row
+                    .col-md-6
+                        .card.big-space-bottom
+                            .card-header
+                                h5.mb-0 Flag
+                            .card-body
+                                span.text-white
+                                    div.form-group
+                                        .container
+                                            .row.justify-content-center
+                                                .col-12
+                                                    select(name="flag" id="flag")
+                                                        each v,k in flags
+                                                            option(value=k selected=(jdata.region == k) disabled=!(jdata.region == k))= v
+                                            .row.justify-content-center
+                                                .col-12
+                                                    div.text-center.big-space-top
+                                                        img(src=`/flags/${jdata.region}.png` id="flag-img" alt="Flag Preview")
+                    .col-md-6
+                        .card.big-space-bottom
+                            .card-header
+                                h5.mb-0 Coin Icon
+                            .card-body
+                                span.text-white
+                                    div.form-group
+                                        .container
+                                            .row.justify-content-center
+                                                .col-12
+                                                    select(name="coin" id="coin")
+                                                        each v,k in coins
+                                                            option(value=k selected=(jdata.coin == k) disabled=!(jdata.coin == k))= v
+                                            .row.justify-content-center
+                                                .col-12
+                                                    - var cimg
+                                                    if jdata.coin == "default"
+                                                        - cimg = soverlay.coin_icon.img
+                                                    else
+                                                        - cimg = jdata.coin
+                                                    div.text-center.big-space-top
+                                                        img(src=`/../img/coin/${cimg}.png` id="coin-img" alt="Coin Preview")
+                .row
+                    .col-md-6
+                        .card.big-space-bottom
+                            .card-header
+                                h5.mb-0 Personalization
+                            .card-body
+                                span.text-white
+                                    div.form-group
+                                        .container
+                                            .row.justify-content-center
+                                                .col-12
+                                                    h5.mb-0 Use Discord Profile Picture
+                                                    select(name="useavatar" id="useavatar").space-top.space-bottom
+                                                        option(value="true" selected=(jdata.useavatar == "true") disabled=(jdata.useavatar == "false"))= "Yes"
+                                                        option(value="false" selected=(jdata.useavatar == "false") disabled=(jdata.useavatar == "true"))= "No"
+                                                    br
+                                            .row.justify-content-center
+                                                .col-12
+                                                    h5.mb-0 Use Mii
+                                                    select(name="usemii" id="usemii").space-top.space-bottom
+                                                        option(value="true" selected=(jdata.usemii == "true") disabled=(jdata.usemii == "false"))= "Yes"
+                                                        option(value="false" selected=(jdata.usemii == "false") disabled=(jdata.usemii == "true"))= "No"
+                                                    br
+                                            .row.justify-content-center
+                                                .col-12
+                                                    h5.mb-0 Font
+                                                    - if (!jdata.font) { jdata.font = "default"; }
+                                                    select(name="font" id="font").space-top.space-bottom
+                                                        each v,k in fonts
+                                                            option(value=k selected=(jdata.font == k) disabled=!(jdata.font == k))= v
+                                            .row.justify-content-center
+                                                .col-12
+                                                    div.text-center.big-space-top
+                                                        - var fimg
+                                                        if jdata.font == "default"
+                                                            - fimg = soverlay.username.font_family
+                                                        else
+                                                            - fimg = jdata.font
+                                                        img(src=`/img/font/${fimg}.png` width="75%" id="font-img" alt="Font Preview")
+                    .col-md-6
+                        .card.big-space-bottom
+                            .card-header
+                                h5.mb-0 Cover Display
+                            .card-body
+                                span.text-white
+                                    div.form-group
+                                        .container
+                                            .row.justify-content-center
+                                                .col-12
+                                                    h5.mb-0 Cover Type
+                                                    select(name="covertype" id="covertype").space-top.big-space-bottom
+                                                        each k in covertypes
+                                                            option(value=k selected=(jdata.covertype == k) disabled=!(jdata.covertype == k))= k
+                                                    br
+                                                    h5.mb-0 Cover Region
+                                                    select(name="coverregion" id="coverregion").space-top.big-space-bottom
+                                                        each k in coverregions
+                                                            option(value=k selected=(jdata.coverregion == k) disabled=!(jdata.coverregion == k))= k
+                        .card.big-space-bottom
+                            .card-header
+                                h5.mb-0 Other Information
+                            .card-body
+                                span.text-white
+                                    div.form-group
+                                        .container
+                                            .row.text-center
+                                                .col-12
+                                                    h5.mb-0 Nickname
+                                                    input(type="text" name="name" value=jdata.name id="nickname" readonly).space-top.big-space-bottom
+                                                    h5.mb-0 Friend Code / Comments
+                                                    input(type="text" name="wiinumber" value=jdata.friend_code id="wiinumber" readonly).space-top.big-space-bottom
+                                                    h5.mb-0 Games
+                                                    h6.mb-0 Game IDs should be separated by a semicolon (;). Using a USB Loader allows games to appear automagically.
+                                                    input(type="text" name="games" value=jdata.games.join(";") id="games" readonly).space-top
+                .row
+                    .col-md-6
+                        .card.big-space-bottom
+                            .card-header
+                                h5.mb-0 RiiTag Mii
+                            .card-body
+                                span.text-white
+                                    div.form-group
+                                        .container
+                                            .row.text-center
+                                                .col-12
+                                                    div.alert.alert-success#mii-success(role="alert" style="display: none;")
+                                                        b.alert-success Your Mii has successfully been uploaded!
+                                                    h5.mb-0 Mii Preview
+                                                    - var miiImg
+                                                    - if (guestList.includes(jdata.mii_data)) { miiImg = `/miis/guests/${jdata.mii_data}.png`; } else if (jdata.mii_data == "" || jdata.mii_data == null || jdata.mii_data.length >= 1000) { miiImg = `/miis/guests/undefined.png`; } else if (jdata.mii_data.length == 94) { miiImg = `https://studio.mii.nintendo.com/miis/image.png?data=${jdata.mii_data}&amp;type=face&amp;width=512&amp;bgColor=FFFFFF00`; } else { miiImg = `http://miicontestp.wii.rc24.xyz/cgi-bin/render.cgi?data=${jdata.mii_data}`; }
+                                                    img(src=miiImg width="25%" id="mii-img" alt="Mii Preview").no-shadow
+                    .col-md-6
+                        .card.big-space-bottom
+                            .card-header
+                                h5.mb-0 Administrative Options
+                            .card-body
+                                span.text-white
+                                    div.form-group
+                                        .container
+                                            .row.text-center
+                                                .col-12
+                                                    a(href=`/admin/refresh/${tagowner}` type="button" class="btn btn-primary") Refresh Tag
+    script(src="edit.js")

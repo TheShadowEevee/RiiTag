@@ -195,6 +195,33 @@ app.get("^/admin/refresh/:id([0-9]+)", checkAdmin, async function(req, res) {
     res.redirect(`/${req.params.id}`);
 });
 
+app.route("/admin/user")
+    .get(checkAdmin, async function(req, res) {
+        if (fs.existsSync(path.resolve(dataFolder, "users", req.query.userid + ".json"))) {
+            var jstring = fs.readFileSync(path.resolve(dataFolder, "users", req.query.userid + ".json")).toString();
+            var userKey = await getUserKey(req.query.userid);
+            if (userKey == undefined) {
+                throw new Error("User Key is undefined");
+            }
+            res.render("adminuserpage.pug", {
+                jstring: jstring,
+                backgrounds: getBackgroundList(),
+                jdata: JSON.parse(jstring),
+                overlays: getOverlayList(),
+                flags: getFlagList(),
+                coins: getCoinList(),
+                covertypes: getCoverTypes(),
+                coverregions: getCoverRegions(),
+                fonts: getFonts(),
+                userKey: userKey,
+                user: req.user,
+                tagowner: req.query.userid
+            });
+        } else {
+            res.status(404).render("notfound.pug");
+        }
+});
+
 app.get("/create", checkAuth, async function (req, res) {
     if (!fs.existsSync(path.resolve(dataFolder, "tag"))) {
         fs.mkdirSync(path.resolve(dataFolder, "tag"));

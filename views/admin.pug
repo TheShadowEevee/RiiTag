@@ -7,7 +7,14 @@ block content
             div.list-group.list-group-flush
                 a.list-group-item.list-group-item-action#dashboard-btn(href="#") Dashboard
 
-        div.page-content-wrapper#dashboard
-            h1.text-white= `You're an admin, ${user.username}!`
+        .container
+            .row(class="text-center")
+                .col-md-12
+                    span.text-white
+                        h1.text-white.text-left=`User Information`
+                        form(method="get" action="/admin/user")
+                            h5.mb-0.m-1.text-left=`- To view a user, enter their Discord ID here and press "View": `
+                                input(type="text" name="userid" style="width: 25%" value='').big-space-top
+                                button(value='Submit' type="submit").m-2 View
 
     script(src="/assets/js/admin.js")
